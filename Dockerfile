@@ -17,4 +17,4 @@ COPY . .
 EXPOSE 3000
 
 # chay ung dung
-CMD ["npm", "start"]
+CMD ["npm", "run", "dev"]
