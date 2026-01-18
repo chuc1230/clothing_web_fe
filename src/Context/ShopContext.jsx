@@ -16,12 +16,12 @@ const ShopContextProvider = (props) => {
   const [orderItems, setOrderItems] = useState([]);
 
   useEffect(() => {
-    fetch('http://localhost:4000/allproducts')
+    fetch('https://clothing-web-be.onrender.com/allproducts')
       .then((response) => response.json())
       .then((data) => setAll_Product(data));
 
     if (localStorage.getItem('auth-token')) {
-      fetch('http://localhost:4000/getcart', {
+      fetch('https://clothing-web-be.onrender.com/getcart', {
         method: 'POST',
         headers: {
           Accept: 'application/form-data',
@@ -35,7 +35,7 @@ const ShopContextProvider = (props) => {
     const fetchOrderItems = async () => {
       try {
         const token = localStorage.getItem('auth-token');  // Assuming token is stored in localStorage
-        const orderResponse = await axios.get('http://localhost:4000/orderItems', {
+        const orderResponse = await axios.get('https://clothing-web-be.onrender.com/orderItems', {
           headers: {
             'auth-token': token,
           },
@@ -52,7 +52,7 @@ const ShopContextProvider = (props) => {
     setCartItems((prev) => ({ ...prev, [itemId]: prev[itemId] + 1 }));
     if (localStorage.getItem('auth-token')) {
       console.log(itemId);
-      fetch('http://localhost:4000/addtocart', {
+      fetch('https://clothing-web-be.onrender.com/addtocart', {
         method: 'POST',
         headers: {
           Accept: 'application/form-data',
@@ -71,7 +71,7 @@ const ShopContextProvider = (props) => {
     setCartItems((prev) => ({ ...prev, [itemId]: prev[itemId] - 1 }));
     if (localStorage.getItem('auth-token')) {
       console.log(itemId);
-      fetch('http://localhost:4000/removefromcart', {
+      fetch('https://clothing-web-be.onrender.com/removefromcart', {
         method: 'POST',
         headers: {
           Accept: 'application/form-data',
@@ -113,7 +113,7 @@ const ShopContextProvider = (props) => {
   const clearCart = () => {
     setCartItems(getDefaultCart()); // Reset to the default cart state
     if (localStorage.getItem('auth-token')) {
-      fetch('http://localhost:4000/clearcart', {
+      fetch('https://clothing-web-be.onrender.com/clearcart', {
         method: 'POST',
         headers: {
           Accept: 'application/form-data',
