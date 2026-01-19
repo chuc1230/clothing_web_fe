@@ -32,7 +32,7 @@ const Footer = () => {
         <div className="footer-copyright">
             <hr />
             <p>
-                Copyright @ 2025 - All Right Reserved 
+                © Bản quyền thuộc về Clothing Shop
             </p>
         </div>
     </div>
