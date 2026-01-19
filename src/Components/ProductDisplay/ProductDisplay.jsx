@@ -32,17 +32,17 @@ const ProductDisplay = (props) => {
         </div>
         <div className="productdisplay-right-prices">
           <div className="productdisplay-right-price-old">
-            ${product.old_price}
+            {product.old_price}đ
           </div>
           <div className="productdisplay-right-price-new">
-            ${product.new_price}
+            {product.new_price}đ
           </div>
         </div>
         <div className="productdisplay-right-description">
-          Desription
+          Mô tả
         </div>
         <div className="productdisplay-right-size">
-            <h1>Select Size</h1>
+            <h1>Chọn Size</h1>
             <div className="productdisplay-right-sizes">
                 <div>S</div>
                 <div>M</div>
@@ -51,9 +51,9 @@ const ProductDisplay = (props) => {
                 <div>XXL</div>
             </div>
         </div>
-        <button onClick={()=> {addToCart(product.id)}}>ADD TO CART</button>
-        <p className="productdisplay-right-category"><span>Category : </span>{product.category} , T-Shirt , Crop-top</p>
-        <p className="productdisplay-right-category"><span>Tags : </span>Modern , Latest</p>
+        <button onClick={()=> {addToCart(product.id)}}>Thêm vào giỏ hàng</button>
+        <p className="productdisplay-right-category"><span>Category : </span>{product.category} </p>
+        <p className="productdisplay-right-category"><span>Tags : </span>Modern </p>
       </div>
     </div>
   );

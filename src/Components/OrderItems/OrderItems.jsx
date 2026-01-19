@@ -50,7 +50,7 @@ const OrderItems = () => {
       </div>
       <hr />
       {orderItems.length === 0 ? (
-        <p>You have no orders yet.</p>
+        <p>Bạn chưa có đơn hàng nào.</p>
       ) : (
         <>
           {paginatedOrderItems.map((order, index) => (

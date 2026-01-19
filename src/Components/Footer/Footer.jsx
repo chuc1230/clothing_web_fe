@@ -10,13 +10,12 @@ const Footer = () => {
     <div className="footer">
         <div className="footer-logo">
             <img src={footer_logo} alt="" />
-            <p>SHOPPER</p>
+            <p>Clothing Store</p>
         </div>
         <ul className="footer-links">
-            <li>Company</li>
-            <li>Products</li>
-            <li>Offices</li>
-            <li>Contact</li>
+            <li>Công ty</li>
+            <li>Địa chỉ</li>
+            <li>Chính sách khách hàng</li>
         </ul>
         <div className="footer-social-icon">
             <div className="footer-icons-container">
@@ -32,7 +31,7 @@ const Footer = () => {
         <div className="footer-copyright">
             <hr />
             <p>
-                © Bản quyền thuộc về Clothing Shop
+                © Bản quyền thuộc về Clothing Store
             </p>
         </div>
     </div>

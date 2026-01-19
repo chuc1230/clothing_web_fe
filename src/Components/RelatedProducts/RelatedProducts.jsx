@@ -10,7 +10,7 @@ const RelatedProducts = ( {product}) => {
   .slice(0, 4);
   return (
     <div className="relatedproducts">
-      <h1> Related Products</h1>
+      <h1> Các sản phẩm liên quan</h1>
       <hr />
       <div className="relatedproducts-item">
         {filteredProducts.map((item, i) => {
