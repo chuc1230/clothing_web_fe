@@ -178,3 +178,21 @@
     transform: scale(0.8);
   }
 }
+
+.nav-avatar-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.nav-avatar-icon {
+  color: #515151;
+  cursor: pointer;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.nav-avatar-icon:hover {
+  color: #ff4141;
+  transform: scale(1.08);
+}

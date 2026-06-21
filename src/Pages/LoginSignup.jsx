@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "./CSS/LoginSignup.css";
 
 const LoginSignup = () => {
-  const [state, setState] = useState("Login");
+  const [state, setState] = useState("Đăng nhập");
   const [isChecked, setIsChecked] = useState(false);
   const [formData, setFormData] = useState({
     username: "",
@@ -16,12 +16,11 @@ const LoginSignup = () => {
 
   const login = async () => {
     console.log("Login Function Executed", formData);
-    console.log("Sign Up Function Executed", formData);
     let responseData;
-    await fetch("https://clothing-web-be.onrender.com/login", {
+    await fetch("http://localhost:4000/login", {
       method: "POST",
       headers: {
-        Accept: "application/form-data",
+        Accept: "application/json",
         "Content-Type": "application/json",
       },
       body: JSON.stringify(formData),
@@ -33,17 +32,17 @@ const LoginSignup = () => {
       localStorage.setItem("auth-token", responseData.token);
       window.location.replace("/");
     } else {
-      alert(responseData.errors);
+      alert(responseData.errors || responseData.message || "Đăng nhập thất bại");
     }
   };
 
   const signup = async () => {
     console.log("Sign Up Function Executed", formData);
     let responseData;
-    await fetch("https://clothing-web-be.onrender.com/signup", {
+    await fetch("http://localhost:4000/signup", {
       method: "POST",
       headers: {
-        Accept: "application/form-data",
+        Accept: "application/json",
         "Content-Type": "application/json",
       },
       body: JSON.stringify(formData),
@@ -55,7 +54,7 @@ const LoginSignup = () => {
       localStorage.setItem("auth-token", responseData.token);
       window.location.replace("/");
     } else {
-      alert(responseData.errors);
+      alert(responseData.errors || responseData.message || "Đăng ký thất bại");
     }
   };
 
@@ -64,13 +63,13 @@ const LoginSignup = () => {
       <div className="loginsignup-container">
         <h1>{state}</h1>
         <div className="loginsignup-fields">
-          {state === "Sign Up" && (
+          {state === "Đăng ký" && (
             <input
               name="username"
               value={formData.username}
               onChange={changeHandler}
               type="text"
-              placeholder="Your Name"
+              placeholder="Tên của bạn"
             />
           )}
           <input
@@ -78,35 +77,35 @@ const LoginSignup = () => {
             value={formData.email}
             onChange={changeHandler}
             type="email"
-            placeholder="Email Address"
+            placeholder="Địa chỉ Email"
           />
           <input
             name="password"
             value={formData.password}
             onChange={changeHandler}
             type="password"
-            placeholder="Password"
+            placeholder="Mật khẩu"
           />
         </div>
         <button
-          onClick={state === "Login" ? login : signup}
-          disabled={state === "Sign Up" && !isChecked}
+          onClick={state === "Đăng nhập" ? login : signup}
+          disabled={state === "Đăng ký" && !isChecked}
         >
-          Continue
+          Tiếp tục
         </button>
-        {state === "Sign Up" ? (
+        {state === "Đăng ký" ? (
           <p className="loginsignup-login">
-            Already have an account?{" "}
-            <span onClick={() => setState("Login")}>Login here</span>
+            Đã có tài khoản?{" "}
+            <span onClick={() => setState("Đăng nhập")}>Đăng nhập tại đây</span>
           </p>
         ) : (
           <p className="loginsignup-login">
-            Create an account?{" "}
-            <span onClick={() => setState("Sign Up")}>Click here</span>
+            Tạo tài khoản mới?{" "}
+            <span onClick={() => setState("Đăng ký")}>Đăng ký ngay</span>
           </p>
         )}
         <div className="loginsignup-agree">
-          {state !== "Login" ? (
+          {state !== "Đăng nhập" ? (
             <>
               <input
                 type="checkbox"
@@ -114,7 +113,7 @@ const LoginSignup = () => {
                 onChange={() => setIsChecked(!isChecked)}
               />
               <p>
-                By continuing, I agree to the terms of use & policy privacy.
+                Bằng cách tiếp tục, tôi đồng ý với các điều khoản sử dụng & chính sách bảo mật.
               </p>
             </>
           ) : (

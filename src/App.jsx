@@ -11,6 +11,7 @@ import men_banner from './Components/Assets/banner_mens.png'
 import women_banner from './Components/Assets/banner_women.png'
 import kid_banner from './Components/Assets/banner_kids.png'
 import OrderHistory from "./Pages/OrderHistory";
+import Profile from "./Pages/Profile";
 
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
           <Route path="/womens" element={<ShopCategory banner={women_banner} category="women" />} />
           <Route path="/kids" element={<ShopCategory banner={kid_banner} category="kid" />} />
           <Route path="/orderhistory" element={<OrderHistory />} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="/product" element={<Product />}>
             <Route path=":productId" element={<Product />} />
           </Route>

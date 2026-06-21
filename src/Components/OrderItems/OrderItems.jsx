@@ -13,7 +13,7 @@ const OrderItems = () => {
 
   const getProductNameById = (productId) => {
     const product = all_product.find((prod) => prod.id === parseInt(productId));
-    return product ? product.name : "Product Not Found";
+    return product ? product.name : "Sản phẩm không tồn tại";
   };
 
   const showModal = (order) => {
@@ -42,11 +42,11 @@ const OrderItems = () => {
   return (
     <div className="orderitems">
       <div className="orderitems-format-main">
-        <p>ID</p>
-        <p>Order Date</p>
-        <p>Quantity</p>
-        <p>Total Price</p>
-        <p>Details</p>
+        <p>STT</p>
+        <p>Ngày đặt hàng</p>
+        <p>Số lượng</p>
+        <p>Tổng tiền</p>
+        <p>Chi tiết</p>
       </div>
       <hr />
       {orderItems.length === 0 ? (
@@ -56,7 +56,7 @@ const OrderItems = () => {
           {paginatedOrderItems.map((order, index) => (
             <div key={order._id}>
               <div className="orderitems-format orderitems-format-main">
-                <p>{index + 1}</p>
+                <p>{startIndex + index + 1}</p>
                 <p>{new Date(order.orderDate).toLocaleDateString()}</p>
                 <p>
                   <button className="orderitems-quantity">
@@ -83,7 +83,7 @@ const OrderItems = () => {
         align="center"
       />
       <Modal
-        title="Order Details"
+        title="Chi tiết đơn hàng"
         open={isModalOpen}
         onOk={handleOk}
         onCancel={handleCancel}
@@ -91,16 +91,16 @@ const OrderItems = () => {
         {selectedOrder && (
           <div>
             <h3>
-              Order Date:{" "}
+              Ngày đặt hàng:{" "}
               {new Date(selectedOrder.orderDate).toLocaleDateString()}
             </h3>
-            <h3>Total Price: {selectedOrder.totalPrice}đ</h3>
-            <h3>Items in this order:</h3>
+            <h3>Tổng tiền: {selectedOrder.totalPrice}đ</h3>
+            <h3>Sản phẩm trong đơn hàng:</h3>
             <ul>
               {Object.entries(selectedOrder.cart).map(
                 ([productId, quantity]) => (
                   <li key={productId}>
-                    <strong>{getProductNameById(productId)}</strong>: {quantity}
+                    <strong>{getProductNameById(productId)}</strong>: Số lượng {quantity}
                   </li>
                 )
               )}

@@ -52,8 +52,8 @@ const ProductDisplay = (props) => {
             </div>
         </div>
         <button onClick={()=> {addToCart(product.id)}}>Thêm vào giỏ hàng</button>
-        <p className="productdisplay-right-category"><span>Category : </span>{product.category} </p>
-        <p className="productdisplay-right-category"><span>Tags : </span>Modern </p>
+        <p className="productdisplay-right-category"><span>Danh mục : </span>{product.category === "women" ? "Nữ" : product.category === "men" ? "Nam" : "Trẻ em"} </p>
+        <p className="productdisplay-right-category"><span>Từ khóa : </span>Hiện đại, Mới nhất </p>
       </div>
     </div>
   );

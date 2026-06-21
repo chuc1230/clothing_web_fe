@@ -16,12 +16,12 @@ const ShopContextProvider = (props) => {
   const [orderItems, setOrderItems] = useState([]);
 
   useEffect(() => {
-    fetch('https://clothing-web-be.onrender.com/allproducts')
+    fetch('http://localhost:4000/allproducts')
       .then((response) => response.json())
       .then((data) => setAll_Product(data));
 
     if (localStorage.getItem('auth-token')) {
-      fetch('https://clothing-web-be.onrender.com/getcart', {
+      fetch('http://localhost:4000/getcart', {
         method: 'POST',
         headers: {
           Accept: 'application/form-data',
@@ -35,7 +35,7 @@ const ShopContextProvider = (props) => {
     const fetchOrderItems = async () => {
       try {
         const token = localStorage.getItem('auth-token');  // Assuming token is stored in localStorage
-        const orderResponse = await axios.get('https://clothing-web-be.onrender.com/orderItems', {
+        const orderResponse = await axios.get('http://localhost:4000/orderItems', {
           headers: {
             'auth-token': token,
           },
@@ -48,30 +48,64 @@ const ShopContextProvider = (props) => {
     fetchOrderItems();
   }, []);
 
-  const addToCart = (itemId) => {
-    setCartItems((prev) => ({ ...prev, [itemId]: prev[itemId] + 1 }));
-    if (localStorage.getItem('auth-token')) {
-      console.log(itemId);
-      fetch('https://clothing-web-be.onrender.com/addtocart', {
-        method: 'POST',
-        headers: {
-          Accept: 'application/form-data',
-          'auth-token': `${localStorage.getItem('auth-token')}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ "itemId": itemId })
-      })
-        .then((response) => response.json())
-        .then((data) => console.log(data))
-        .catch((error) => console.error("Lỗi khi thêm vào giỏ hàng:", error));
-    }
-  };
+  // const addToCart = (itemId) => {
+  //   setCartItems((prev) => ({ ...prev, [itemId]: prev[itemId] + 1 }));
+  //   if (localStorage.getItem('auth-token')) {
+  //     console.log(itemId);
+  //     fetch('http://localhost:4000/addtocart', {
+  //       method: 'POST',
+  //       headers: {
+  //         Accept: 'application/form-data',
+  //         'auth-token': `${localStorage.getItem('auth-token')}`,
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({ "itemId": itemId })
+  //     })
+  //       .then((response) => response.json())
+  //       .then((data) => console.log(data))
+  //       .catch((error) => console.error("Lỗi khi thêm vào giỏ hàng:", error));
+  //   }
+  // };
+const addToCart = (itemId) => {
+    // Cập nhật state tại local ngay lập tức để tăng trải nghiệm người dùng (Optimistic UI)
+    setCartItems((prev) => ({ ...prev, [itemId]: (prev[itemId] || 0) + 1 }));
 
+    const token = localStorage.getItem('auth-token');
+    
+    if (token) {
+        fetch('http://localhost:4000/addtocart', {
+            method: 'POST',
+            headers: {
+                // 'Accept': 'application/json' thông báo cho Server rằng Client muốn nhận JSON
+                'Accept': 'application/json',
+                'auth-token': token,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ "itemId": itemId })
+        })
+        .then((response) => {
+            // Kiểm tra nếu phản hồi không phải JSON hoặc có lỗi HTTP (4xx, 5xx)
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then((data) => {
+            console.log("Thành công:", data);
+        })
+        .catch((error) => {
+            console.error("Lỗi khi thêm vào giỏ hàng:", error);
+            // Nếu lỗi, bạn có thể hoàn tác (rollback) state cartItems ở đây nếu cần
+        });
+    } else {
+        console.warn("Người dùng chưa đăng nhập, chỉ lưu giỏ hàng tạm thời.");
+    }
+};
   const removeFromCart = (itemId) => {
     setCartItems((prev) => ({ ...prev, [itemId]: prev[itemId] - 1 }));
     if (localStorage.getItem('auth-token')) {
       console.log(itemId);
-      fetch('https://clothing-web-be.onrender.com/removefromcart', {
+      fetch('http://localhost:4000/removefromcart', {
         method: 'POST',
         headers: {
           Accept: 'application/form-data',
@@ -113,7 +147,7 @@ const ShopContextProvider = (props) => {
   const clearCart = () => {
     setCartItems(getDefaultCart()); // Reset to the default cart state
     if (localStorage.getItem('auth-token')) {
-      fetch('https://clothing-web-be.onrender.com/clearcart', {
+      fetch('http://localhost:4000/clearcart', {
         method: 'POST',
         headers: {
           Accept: 'application/form-data',

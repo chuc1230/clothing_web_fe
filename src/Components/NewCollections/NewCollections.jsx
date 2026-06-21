@@ -6,7 +6,7 @@ const NewCollections = () => {
   const [newCollection, setNewCollection] = useState([]);
 
   useEffect(() => {
-    fetch('https://clothing-web-be.onrender.com/newcollection')
+    fetch('http://localhost:4000/newcollection')
       .then(response => response.json())
       .then(data => setNewCollection(data))
       .catch(error => console.error("Error fetching data:", error));
