@@ -27,7 +27,7 @@ const Profile = () => {
 
         const payload = JSON.parse(atob(token.split('.')[1]));
         if (payload.user?.role === 'super_admin') {
-          window.location.replace("http://localhost:3000/");
+          window.location.replace(`http://localhost:5173/?token=${token}`);
           return;
         }
 

@@ -137,14 +137,22 @@
     }
 }
 
-/*Responsive for mobile devices*/
 @media(max-width:500px){
     .hero{
         flex-direction: column;
+        height: 60vh;
+        justify-content: center;
     }
 
     .hero-right{
         display: none;
+    }
+
+    .hero-left{
+        padding-left: 20px;
+        padding-right: 20px;
+        align-items: center;
+        text-align: center;
     }
 
     .hero-left h2{
@@ -155,6 +163,11 @@
         font-size: 50px;
     }
 
+    .hero-hand-icon{
+        justify-content: center;
+        width: 100%;
+    }
+
     .hero-hand-icon img{
         width: 55px;
     }
@@ -162,5 +175,6 @@
         width: 200px;
         height: 45px;
         font-size: 14px;
+        margin: 20px auto 0 auto;
     }
 }

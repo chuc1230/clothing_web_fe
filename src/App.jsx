@@ -12,6 +12,7 @@ import women_banner from './Components/Assets/banner_women.png'
 import kid_banner from './Components/Assets/banner_kids.png'
 import OrderHistory from "./Pages/OrderHistory";
 import Profile from "./Pages/Profile";
+import Checkout from "./Pages/Checkout";
 
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
             <Route path=":productId" element={<Product />} />
           </Route>
           <Route path="/cart" element={<Cart />} />
+          <Route path="/checkout" element={<Checkout />} />
           <Route path="/login" element={<LoginSignup />} />
         </Routes>
         <Footer />

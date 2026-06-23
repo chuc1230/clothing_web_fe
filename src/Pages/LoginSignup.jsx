@@ -16,45 +16,75 @@ const LoginSignup = () => {
 
   const login = async () => {
     console.log("Login Function Executed", formData);
-    let responseData;
-    await fetch("http://localhost:4000/login", {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(formData),
-    })
-      .then((response) => response.json())
-      .then((data) => (responseData = data));
+    try {
+      const response = await fetch("http://localhost:4000/login", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+      const responseData = await response.json();
 
-    if (responseData.success) {
-      localStorage.setItem("auth-token", responseData.token);
-      window.location.replace("/");
-    } else {
-      alert(responseData.errors || responseData.message || "Đăng nhập thất bại");
+      if (responseData.success) {
+        localStorage.setItem("auth-token", responseData.token);
+        window.location.replace("/");
+      } else {
+        alert(responseData.errors || responseData.message || "Đăng nhập thất bại");
+      }
+    } catch (error) {
+      console.error("Lỗi đăng nhập:", error);
+      alert("Đã xảy ra lỗi kết nối. Vui lòng kiểm tra lại server backend.");
     }
   };
 
   const signup = async () => {
     console.log("Sign Up Function Executed", formData);
-    let responseData;
-    await fetch("http://localhost:4000/signup", {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(formData),
-    })
-      .then((response) => response.json())
-      .then((data) => (responseData = data));
+    try {
+      const response = await fetch("http://localhost:4000/signup", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+      const responseData = await response.json();
 
-    if (responseData.success) {
-      localStorage.setItem("auth-token", responseData.token);
-      window.location.replace("/");
+      if (responseData.success) {
+        localStorage.setItem("auth-token", responseData.token);
+        window.location.replace("/");
+      } else {
+        alert(responseData.errors || responseData.message || "Đăng ký thất bại");
+      }
+    } catch (error) {
+      console.error("Lỗi đăng ký:", error);
+      alert("Đã xảy ra lỗi kết nối. Vui lòng kiểm tra lại server backend.");
+    }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (state === "Đăng ký") {
+      if (!formData.username.trim() || !formData.email.trim() || !formData.password.trim()) {
+        alert("Vui lòng điền đầy đủ thông tin đăng ký!");
+        return;
+      }
+      if (!isChecked) {
+        alert("Vui lòng đồng ý với các điều khoản sử dụng!");
+        return;
+      }
+      signup();
     } else {
-      alert(responseData.errors || responseData.message || "Đăng ký thất bại");
+      if (!formData.email.trim() || !formData.password.trim()) {
+        alert("Vui lòng nhập Email và Mật khẩu!");
+        return;
+      }
+      login();
     }
   };
 
@@ -62,37 +92,39 @@ const LoginSignup = () => {
     <div className="loginsignup">
       <div className="loginsignup-container">
         <h1>{state}</h1>
-        <div className="loginsignup-fields">
-          {state === "Đăng ký" && (
+        <form onSubmit={handleSubmit}>
+          <div className="loginsignup-fields">
+            {state === "Đăng ký" && (
+              <input
+                name="username"
+                value={formData.username}
+                onChange={changeHandler}
+                type="text"
+                placeholder="Tên của bạn"
+              />
+            )}
             <input
-              name="username"
-              value={formData.username}
+              name="email"
+              value={formData.email}
               onChange={changeHandler}
-              type="text"
-              placeholder="Tên của bạn"
+              type="email"
+              placeholder="Địa chỉ Email"
             />
-          )}
-          <input
-            name="email"
-            value={formData.email}
-            onChange={changeHandler}
-            type="email"
-            placeholder="Địa chỉ Email"
-          />
-          <input
-            name="password"
-            value={formData.password}
-            onChange={changeHandler}
-            type="password"
-            placeholder="Mật khẩu"
-          />
-        </div>
-        <button
-          onClick={state === "Đăng nhập" ? login : signup}
-          disabled={state === "Đăng ký" && !isChecked}
-        >
-          Tiếp tục
-        </button>
+            <input
+              name="password"
+              value={formData.password}
+              onChange={changeHandler}
+              type="password"
+              placeholder="Mật khẩu"
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={state === "Đăng ký" && !isChecked}
+          >
+            Tiếp tục
+          </button>
+        </form>
         {state === "Đăng ký" ? (
           <p className="loginsignup-login">
             Đã có tài khoản?{" "}

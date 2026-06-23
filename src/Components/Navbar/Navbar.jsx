@@ -1,17 +1,17 @@
 "use client";
-import React, { useState, useContext, useRef } from "react";
+import React, { useContext, useRef } from "react";
 import "./Navbar.css";
 import logo from "../Assets/logo.png";
 import cart_icon from "../Assets/cart_icon.png";
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { ShopContext } from "../../Context/ShopContext";
 import nav_dropdown from '../Assets/nav_dropdown.png';
 import { FaUserCircle } from "react-icons/fa";
 
 const Navbar = () => {
-  const [menu, setMenu] = useState("shop");
   const { getTotalCartItems } = useContext(ShopContext);
   const menuRef = useRef();
+  const location = useLocation();
 
   const dropdown_toggle = (e) => {
     menuRef.current.classList.toggle('nav-menu-visible');
@@ -29,54 +29,52 @@ const Navbar = () => {
     }
   }
 
+  const getActiveMenu = () => {
+    const path = location.pathname;
+    if (path === '/') return "shop";
+    if (path.startsWith('/mens')) return "men";
+    if (path.startsWith('/womens')) return "women";
+    if (path.startsWith('/kids')) return "kids";
+    if (path.startsWith('/orderhistory')) return "orders";
+    if (path.startsWith('/profile')) return "profile";
+    return "";
+  };
+
+  const activeMenu = getActiveMenu();
+
   return (
     <div className="navbar">
-      <div className="nav-logo">
+      <Link to="/" style={{ textDecoration: "none" }} className="nav-logo">
         <img src={logo} alt="" />
-        <p>Cửa hàng quần áo</p>
-      </div>
+        <p>Clothing store</p>
+      </Link>
       <img className="nav-dropdown" onClick={dropdown_toggle} src={nav_dropdown} alt="" />
       <ul ref={menuRef} className="nav-menu">
-        <li
-          onClick={() => {
-            setMenu("shop");
-          }}
-        >
-          <Link style={{ textDecoration: "none" }} to='/'>Cửa hàng</Link>{menu === "shop" ? <hr /> : <></>}
+        <li>
+          <Link style={{ textDecoration: "none" }} to='/'>Trang chủ</Link>
+          {activeMenu === "shop" ? <hr /> : <></>}
         </li>
-        <li
-          onClick={() => {
-            setMenu("men");
-          }}
-        >
-          <Link style={{ textDecoration: "none" }} to='/mens'>Nam</Link>{menu === "men" ? <hr /> : <></>}
+        <li>
+          <Link style={{ textDecoration: "none" }} to='/mens'>Nam</Link>
+          {activeMenu === "men" ? <hr /> : <></>}
         </li>
-        <li
-          onClick={() => {
-            setMenu("women");
-          }}
-        >
-          <Link style={{ textDecoration: "none" }} to='/womens'>Nữ</Link>{menu === "women" ? <hr /> : <></>}
+        <li>
+          <Link style={{ textDecoration: "none" }} to='/womens'>Nữ</Link>
+          {activeMenu === "women" ? <hr /> : <></>}
         </li>
-        <li
-          onClick={() => {
-            setMenu("kids");
-          }}
-        >
-          <Link style={{ textDecoration: "none" }} to='/kids'>Trẻ em</Link>{menu === "kids" ? <hr /> : <></>}
+        <li>
+          <Link style={{ textDecoration: "none" }} to='/kids'>Trẻ em</Link>
+          {activeMenu === "kids" ? <hr /> : <></>}
         </li>
-        {userRole === 'super_admin' && (
+        {(userRole === 'admin' || userRole === 'super_admin') && (
           <li>
-            <a style={{ textDecoration: "none", color: "#626262" }} href="http://localhost:3000/">Admin</a>
+            <a style={{ textDecoration: "none", color: "#626262" }} href={`http://localhost:5173/?token=${token}`}>Admin</a>
           </li>
         )}
         {token && userRole !== 'super_admin' && (
-          <li
-            onClick={() => {
-              setMenu("orders");
-            }}
-          >
-            <Link style={{ textDecoration: "none" }} to='/orderhistory'>Đơn hàng</Link>{menu === "orders" ? <hr /> : <></>}
+          <li>
+            <Link style={{ textDecoration: "none" }} to='/orderhistory'>Đơn hàng</Link>
+            {activeMenu === "orders" ? <hr /> : <></>}
           </li>
         )}
       </ul>
@@ -85,8 +83,10 @@ const Navbar = () => {
           ? <button onClick={() => { localStorage.removeItem('auth-token'); window.location.replace('/') }}>Đăng xuất</button>
           : <Link to='/login'><button>Đăng nhập</button></Link>}
 
-        <Link to='/cart'><img src={cart_icon} alt="" /></Link>
-        <div className="nav-cart-count">{getTotalCartItems()}</div>
+        <div className="nav-cart-container">
+          <Link to='/cart'><img src={cart_icon} alt="" /></Link>
+          <div className="nav-cart-count">{getTotalCartItems()}</div>
+        </div>
 
         {token && userRole !== 'super_admin' && (
           <Link to='/profile' className="nav-avatar-link">

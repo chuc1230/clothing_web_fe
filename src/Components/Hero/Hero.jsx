@@ -9,20 +9,20 @@ const Hero = () => {
     <div className="hero">
       <div className="hero-left">
         
-        <div>
+        {/* <div>
           <div className="hero-hand-icon">
             <p>Bộ sưu tập</p>
           </div>
           <p>mới</p>
-        </div>
-        <div className="hero-latest-btn">
+        </div> */}
+        {/* <div className="hero-latest-btn">
           <div>Bộ sưu tập mới nhất</div>
           <img src={arrow_icon} alt="" />
-        </div>
+        </div> */}
       </div>
-      <div className="hero-right">
+      {/* <div className="hero-right">
         <img src={hero_image} alt=""/>
-      </div>
+      </div> */}
     </div>
   );
 };

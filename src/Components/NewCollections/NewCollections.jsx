@@ -14,7 +14,7 @@ const NewCollections = () => {
 
   return (
     <div className="new-collections">
-      <h1>Bộ sưu tập mới</h1>
+      <h1>Sản phẩm mới</h1>
       <hr />
       <div className="collections">
         {newCollection.map((item, i) => (

@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { ShopContext } from "../../Context/ShopContext";
 import { Pagination, Modal } from "antd";
 import "./OrderItems.css";
@@ -8,8 +8,14 @@ const OrderItems = () => {
   const [current, setCurrent] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
-  const { orderItems, all_product } = useContext(ShopContext);
+  const { orderItems, all_product, fetchOrderItems } = useContext(ShopContext);
   const pageSize = 5;
+
+  useEffect(() => {
+    if (fetchOrderItems) {
+      fetchOrderItems();
+    }
+  }, []);
 
   const getProductNameById = (productId) => {
     const product = all_product.find((prod) => prod.id === parseInt(productId));
@@ -39,6 +45,38 @@ const OrderItems = () => {
     startIndex + pageSize
   );
 
+  const getStatusBadge = (status) => {
+    const s = status || "Chờ shop đóng hàng";
+    let bg = "#fff7e6";
+    let color = "#d46b08";
+    let border = "1px solid #ffd591";
+    
+    if (s === "Đang ship") {
+      bg = "#e6f7ff";
+      color = "#0050b3";
+      border = "1px solid #91d5ff";
+    } else if (s === "Đã thanh toán") {
+      bg = "#f6ffed";
+      color = "#389e0d";
+      border = "1px solid #b7eb8f";
+    }
+    
+    return (
+      <span style={{ 
+        background: bg, 
+        color: color, 
+        border: border, 
+        padding: "6px 12px", 
+        borderRadius: "20px", 
+        fontSize: "13px",
+        fontWeight: "bold",
+        display: "inline-block"
+      }}>
+        {s}
+      </span>
+    );
+  };
+
   return (
     <div className="orderitems">
       <div className="orderitems-format-main">
@@ -46,11 +84,12 @@ const OrderItems = () => {
         <p>Ngày đặt hàng</p>
         <p>Số lượng</p>
         <p>Tổng tiền</p>
+        <p>Trạng thái</p>
         <p>Chi tiết</p>
       </div>
       <hr />
       {orderItems.length === 0 ? (
-        <p>Bạn chưa có đơn hàng nào.</p>
+        <p style={{ textAlign: "center", padding: "40px", fontSize: "16px" }}>Bạn chưa có đơn hàng nào.</p>
       ) : (
         <>
           {paginatedOrderItems.map((order, index) => (
@@ -67,10 +106,12 @@ const OrderItems = () => {
                   </button>
                 </p>
                 <p>{order.totalPrice}đ</p>
+                <p>{getStatusBadge(order.status)}</p>
                 <p>
-                  <FiEye className="icon" onClick={()=> showModal(order)} />
+                  <FiEye className="icon" onClick={()=> showModal(order)} style={{ cursor: "pointer", fontSize: "20px" }} />
                 </p>
               </div>
+              <hr />
             </div>
           ))}
         </>
@@ -89,17 +130,24 @@ const OrderItems = () => {
         onCancel={handleCancel}
       >
         {selectedOrder && (
-          <div>
-            <h3>
-              Ngày đặt hàng:{" "}
-              {new Date(selectedOrder.orderDate).toLocaleDateString()}
-            </h3>
-            <h3>Tổng tiền: {selectedOrder.totalPrice}đ</h3>
-            <h3>Sản phẩm trong đơn hàng:</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <p><strong>Ngày đặt hàng:</strong> {new Date(selectedOrder.orderDate).toLocaleDateString()}</p>
+            <p><strong>Trạng thái:</strong> {getStatusBadge(selectedOrder.status)}</p>
+            <p><strong>Tổng tiền:</strong> <strong style={{ color: '#ff4141' }}>{selectedOrder.totalPrice}đ</strong></p>
+            <p><strong>Phương thức thanh toán:</strong> {selectedOrder.paymentMethod || "Tiền mặt"}</p>
+            <p><strong>Số điện thoại:</strong> {selectedOrder.phoneNumber || "Không có"}</p>
+            <p>
+              <strong>Địa chỉ giao hàng:</strong>{" "}
+              {selectedOrder.address 
+                ? `${selectedOrder.address.street || ""}, ${selectedOrder.address.city || ""}, ${selectedOrder.address.state || ""}` 
+                : "Không có"}
+            </p>
+            <hr style={{ border: '0', height: '1px', background: '#eee' }} />
+            <h3 style={{ fontSize: "16px", fontWeight: "600" }}>Sản phẩm trong đơn hàng:</h3>
             <ul>
               {Object.entries(selectedOrder.cart).map(
                 ([productId, quantity]) => (
-                  <li key={productId}>
+                  <li key={productId} style={{ margin: '6px 0' }}>
                     <strong>{getProductNameById(productId)}</strong>: Số lượng {quantity}
                   </li>
                 )
