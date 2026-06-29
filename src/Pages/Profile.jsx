@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./CSS/Profile.css";
 
+const API_URL = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
+
 const Profile = () => {
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState({
@@ -31,7 +33,7 @@ const Profile = () => {
           return;
         }
 
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/profile`, {
+        const response = await axios.get(`${API_URL}/api/users/profile`, {
           headers: {
             "auth-token": token,
           },
@@ -85,7 +87,7 @@ const Profile = () => {
     try {
       const token = localStorage.getItem("auth-token");
       const response = await axios.put(
-        `${import.meta.env.VITE_API_URL}/api/users/profile`,
+        `${API_URL}/api/users/profile`,
         {
           name: profile.name,
           phoneNumber: profile.phoneNumber,

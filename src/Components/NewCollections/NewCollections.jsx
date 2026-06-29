@@ -2,11 +2,13 @@ import React, { useState, useEffect } from "react";
 import "./NewCollections.css";
 import Item from "../Item/Item";
 
+const API_URL = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
+
 const NewCollections = () => {
   const [newCollection, setNewCollection] = useState([]);
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/newcollection`)
+    fetch(`${API_URL}/newcollection`)
       .then(response => response.json())
       .then(data => setNewCollection(data))
       .catch(error => console.error("Error fetching data:", error));

@@ -2,6 +2,8 @@ import React, { createContext, useEffect, useState } from "react";
 import axios from "axios";
 export const ShopContext = createContext(null);
 
+const API_URL = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
+
 const getDefaultCart = () => {
   return {};
 };
@@ -16,7 +18,7 @@ const ShopContextProvider = (props) => {
     try {
       const token = localStorage.getItem('auth-token');
       if (token) {
-        const orderResponse = await axios.get(`${import.meta.env.VITE_API_URL}/orderItems`, {
+        const orderResponse = await axios.get(`${API_URL}/orderItems`, {
           headers: {
             'auth-token': token,
           },
@@ -31,12 +33,12 @@ const ShopContextProvider = (props) => {
   };
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/allproducts`)
+    fetch(`${API_URL}/allproducts`)
       .then((response) => response.json())
       .then((data) => setAll_Product(data));
 
     if (localStorage.getItem('auth-token')) {
-      fetch(`${import.meta.env.VITE_API_URL}/getcart`, {
+      fetch(`${API_URL}/getcart`, {
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -75,7 +77,7 @@ const ShopContextProvider = (props) => {
     const token = localStorage.getItem('auth-token');
     
     if (token) {
-        fetch(`${import.meta.env.VITE_API_URL}/addtocart`, {
+        fetch(`${API_URL}/addtocart`, {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -112,7 +114,7 @@ const ShopContextProvider = (props) => {
       return updated;
     });
     if (localStorage.getItem('auth-token')) {
-      fetch(`${import.meta.env.VITE_API_URL}/removefromcart`, {
+      fetch(`${API_URL}/removefromcart`, {
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -139,7 +141,7 @@ const ShopContextProvider = (props) => {
       return updated;
     });
     if (localStorage.getItem('auth-token')) {
-      fetch(`${import.meta.env.VITE_API_URL}/deletefromcart`, {
+      fetch(`${API_URL}/deletefromcart`, {
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -183,7 +185,7 @@ const ShopContextProvider = (props) => {
     setCartItems(getDefaultCart());
     setCheckedItems({});
     if (localStorage.getItem('auth-token')) {
-      fetch(`${import.meta.env.VITE_API_URL}/clearcart`, {
+      fetch(`${API_URL}/clearcart`, {
         method: 'POST',
         headers: {
           Accept: 'application/json',

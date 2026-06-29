@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import "./CSS/LoginSignup.css";
 
+const API_URL = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
+
 const LoginSignup = () => {
   const [state, setState] = useState("Đăng nhập");
   const [isChecked, setIsChecked] = useState(false);
@@ -17,7 +19,7 @@ const LoginSignup = () => {
   const login = async () => {
     console.log("Login Function Executed", formData);
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/login`, {
+      const response = await fetch(`${API_URL}/login`, {
         method: "POST",
         headers: {
           Accept: "application/json",
@@ -45,7 +47,7 @@ const LoginSignup = () => {
   const signup = async () => {
     console.log("Sign Up Function Executed", formData);
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/signup`, {
+      const response = await fetch(`${API_URL}/signup`, {
         method: "POST",
         headers: {
           Accept: "application/json",

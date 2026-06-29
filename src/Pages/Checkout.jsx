@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./CSS/Checkout.css";
 
+const API_URL = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
+
 const Checkout = () => {
   const { all_product, cartItems, checkedItems, addToCart, removeFromCart, clearCheckedCart, fetchOrderItems } = useContext(ShopContext);
   const navigate = useNavigate();
@@ -53,7 +55,7 @@ const Checkout = () => {
 
     const fetchProfile = async () => {
       try {
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/profile`, {
+        const response = await axios.get(`${API_URL}/api/users/profile`, {
           headers: {
             "auth-token": token,
           },
@@ -135,7 +137,7 @@ const Checkout = () => {
     };
 
     try {
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}/addOrder`, requestData, {
+      const response = await axios.post(`${API_URL}/addOrder`, requestData, {
         headers: {
           "auth-token": token,
         },

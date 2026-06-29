@@ -2,6 +2,8 @@ import React, { useState, useEffect, useContext } from "react";
 import "./DescriptionBox.css";
 import { ShopContext } from "../../Context/ShopContext";
 
+const API_URL = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
+
 const DescriptionBox = (props) => {
   const { product } = props;
   const { updateProductReviews } = useContext(ShopContext);
@@ -32,7 +34,7 @@ const DescriptionBox = (props) => {
     }
     setSubmitting(true);
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/product/${product.id}/review`, {
+      const response = await fetch(`${API_URL}/product/${product.id}/review`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
