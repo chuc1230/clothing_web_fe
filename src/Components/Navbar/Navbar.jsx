@@ -8,6 +8,8 @@ import { ShopContext } from "../../Context/ShopContext";
 import nav_dropdown from '../Assets/nav_dropdown.png';
 import { FaUserCircle, FaSearch } from "react-icons/fa";
 
+const ADMIN_URL = (import.meta.env.VITE_ADMIN_URL || "http://localhost:5173").replace(/\/$/, "");
+
 const Navbar = () => {
   const { getTotalCartItems, all_product } = useContext(ShopContext);
   const menuRef = useRef();
@@ -37,19 +39,19 @@ const Navbar = () => {
     if (!token) return;
 
     const iframe = document.createElement("iframe");
-    iframe.src = "http://localhost:5173/?auth_bridge=1";
+    iframe.src = `${ADMIN_URL}/?auth_bridge=1`;
     iframe.style.display = "none";
     document.body.appendChild(iframe);
 
     const listener = (event) => {
-      if (event.origin === "http://localhost:5173") {
+      if (event.origin === ADMIN_URL) {
         if (event.data === "AUTH_READY") {
           iframe.contentWindow.postMessage(
             { type: "AUTH_TOKEN", token: token },
-            "http://localhost:5173"
+            ADMIN_URL
           );
         } else if (event.data === "AUTH_SUCCESS") {
-          window.location.href = "http://localhost:5173/";
+          window.location.href = `${ADMIN_URL}/`;
           cleanup();
         }
       }
@@ -113,7 +115,7 @@ const Navbar = () => {
         </li>
         {(userRole === 'admin' || userRole === 'super_admin') && (
           <li>
-            <a style={{ textDecoration: "none", color: "#626262" }} href="http://localhost:5173/" onClick={handleAdminClick}>Admin</a>
+            <a style={{ textDecoration: "none", color: "#626262" }} href={`${ADMIN_URL}/`} onClick={handleAdminClick}>Admin</a>
           </li>
         )}
         {token && userRole !== 'super_admin' && (

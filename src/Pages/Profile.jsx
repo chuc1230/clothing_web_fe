@@ -3,6 +3,7 @@ import axios from "axios";
 import "./CSS/Profile.css";
 
 const API_URL = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
+const ADMIN_URL = (import.meta.env.VITE_ADMIN_URL || "http://localhost:5173").replace(/\/$/, "");
 
 const Profile = () => {
   const [loading, setLoading] = useState(true);
@@ -29,7 +30,7 @@ const Profile = () => {
 
         const payload = JSON.parse(atob(token.split('.')[1]));
         if (payload.user?.role === 'super_admin') {
-          window.location.replace(`http://localhost:5173/?token=${token}`);
+          window.location.replace(`${ADMIN_URL}/?token=${token}`);
           return;
         }
 
