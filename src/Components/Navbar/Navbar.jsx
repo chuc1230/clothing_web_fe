@@ -38,6 +38,12 @@ const Navbar = () => {
     e.preventDefault();
     if (!token) return;
 
+    // Set a safety timeout to redirect directly if the iframe bridge fails/is blocked
+    const safetyTimeout = setTimeout(() => {
+      cleanup();
+      window.location.href = `${ADMIN_URL}/?token=${token}`;
+    }, 1500);
+
     const iframe = document.createElement("iframe");
     iframe.src = `${ADMIN_URL}/?auth_bridge=1`;
     iframe.style.display = "none";
@@ -51,15 +57,19 @@ const Navbar = () => {
             ADMIN_URL
           );
         } else if (event.data === "AUTH_SUCCESS") {
-          window.location.href = `${ADMIN_URL}/`;
+          clearTimeout(safetyTimeout);
+          window.location.href = `${ADMIN_URL}/?token=${token}`;
           cleanup();
         }
       }
     };
 
     const cleanup = () => {
+      clearTimeout(safetyTimeout);
       window.removeEventListener("message", listener);
-      document.body.removeChild(iframe);
+      if (document.body.contains(iframe)) {
+        document.body.removeChild(iframe);
+      }
     };
 
     window.addEventListener("message", listener);
