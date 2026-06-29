@@ -172,14 +172,7 @@ const CartItems = () => {
               <h3>{getCheckedTotalAmount()}đ</h3>
             </div>
           </div>
-          <button onClick={handleBuySelected}>TIẾN HÀNH THANH TOÁN</button>
-        </div>
-        <div className="cartitems-promocode">
-          <p>Nếu bạn có mã giảm giá, hãy nhập vào đây</p>
-          <div className="cartitems-promobox">
-            <input type="text" placeholder="Mã giảm giá"/>
-            <button>Áp dụng</button>
-          </div>
+          <button onClick={handleBuySelected}>MUA HÀNG</button>
         </div>
       </div>
     </div>

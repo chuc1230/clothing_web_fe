@@ -311,3 +311,9 @@
   border-color: #ff4141;
   box-shadow: 0 0 5px rgba(255, 65, 65, 0.5);
 }
+
+.productdisplay-right-sizes div.active {
+  border-color: #ff4141;
+  background-color: #ff4141;
+  color: white;
+}

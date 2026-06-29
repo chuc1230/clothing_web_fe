@@ -9,10 +9,16 @@ const ProductDisplay = (props) => {
   const { addToCart } = useContext(ShopContext);
   
   const [mainImage, setMainImage] = useState(product?.image);
+  const [selectedSize, setSelectedSize] = useState(null);
   
   useEffect(() => {
     if (product) {
       setMainImage(product.image);
+      if (product.sizes && product.sizes.length > 0) {
+        setSelectedSize(product.sizes[0]);
+      } else {
+        setSelectedSize(null);
+      }
     }
   }, [product]);
 
@@ -26,6 +32,10 @@ const ProductDisplay = (props) => {
   const avgRating = reviews.length > 0 
     ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length) 
     : 5;
+
+  const isSizeObject = selectedSize && typeof selectedSize === 'object';
+  const displayNewPrice = isSizeObject && selectedSize.new_price !== undefined ? selectedSize.new_price : product.new_price;
+  const displayOldPrice = isSizeObject && selectedSize.old_price !== undefined ? selectedSize.old_price : product.old_price;
 
   return (
     <div className="productdisplay">
@@ -60,17 +70,17 @@ const ProductDisplay = (props) => {
           <p>({reviews.length})</p>
         </div>
         <div className="productdisplay-right-prices">
-          {product.new_price === product.old_price ? (
+          {displayNewPrice === displayOldPrice ? (
             <div className="productdisplay-right-price-new">
-              {product.old_price}đ
+              {displayOldPrice}đ
             </div>
           ) : (
             <>
               <div className="productdisplay-right-price-old">
-                {product.old_price}đ
+                {displayOldPrice}đ
               </div>
               <div className="productdisplay-right-price-new">
-                {product.new_price}đ
+                {displayNewPrice}đ
               </div>
             </>
           )}
@@ -78,16 +88,27 @@ const ProductDisplay = (props) => {
         <div className="productdisplay-right-description">
           {product.description || "Sản phẩm chưa có mô tả chi tiết."}
         </div>
-        <div className="productdisplay-right-size">
-            <h1>Chọn Size</h1>
-            <div className="productdisplay-right-sizes">
-                <div>S</div>
-                <div>M</div>
-                <div>L</div>    
-                <div>XL</div>
-                <div>XXL</div>
-            </div>
-        </div>
+        {product.sizes && product.sizes.length > 0 && (
+          <div className="productdisplay-right-size">
+              <h1>Chọn Size</h1>
+              <div className="productdisplay-right-sizes">
+                  {product.sizes.map((s, index) => {
+                      const sizeName = typeof s === 'object' ? s.size : s;
+                      const isSelected = selectedSize && (typeof selectedSize === 'object' ? selectedSize.size === sizeName : selectedSize === s);
+                      return (
+                          <div 
+                              key={index} 
+                              className={isSelected ? "active" : ""}
+                              onClick={() => setSelectedSize(s)}
+                              style={{ cursor: 'pointer' }}
+                          >
+                              {sizeName}
+                          </div>
+                      );
+                  })}
+              </div>
+          </div>
+        )}
         <button onClick={()=> {addToCart(product.id, true)}}>Thêm vào giỏ hàng</button>
         <p className="productdisplay-right-category"><span>Danh mục : </span>{product.category === "women" ? "Nữ" : product.category === "men" ? "Nam" : "Trẻ em"} </p>
         <p className="productdisplay-right-category"><span>Từ khóa : </span>Hiện đại, Mới nhất </p>

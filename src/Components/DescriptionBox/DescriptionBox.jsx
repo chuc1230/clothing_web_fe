@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import "./DescriptionBox.css";
+import { ShopContext } from "../../Context/ShopContext";
 
 const DescriptionBox = (props) => {
   const { product } = props;
+  const { updateProductReviews } = useContext(ShopContext);
   const [activeTab, setActiveTab] = useState("description");
   const [reviews, setReviews] = useState([]);
   
@@ -24,13 +26,13 @@ const DescriptionBox = (props) => {
 
   const handleReviewSubmit = async (e) => {
     e.preventDefault();
-    if (!name || !comment) {
-      alert("Vui lòng điền họ tên và nội dung đánh giá!");
+    if (!name) {
+      alert("Vui lòng điền họ tên!");
       return;
     }
     setSubmitting(true);
     try {
-      const response = await fetch(`http://localhost:4000/product/${product.id}/review`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/product/${product.id}/review`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -38,7 +40,7 @@ const DescriptionBox = (props) => {
         body: JSON.stringify({
           name,
           rating,
-          comment,
+          comment: comment || "",
         }),
       });
 
@@ -46,6 +48,9 @@ const DescriptionBox = (props) => {
       if (data.success) {
         alert("Cảm ơn bạn đã gửi đánh giá!");
         setReviews(data.reviews);
+        if (updateProductReviews) {
+          updateProductReviews(product.id, data.reviews);
+        }
         setName("");
         setRating(5);
         setComment("");
@@ -174,9 +179,8 @@ const DescriptionBox = (props) => {
                 <textarea 
                   value={comment} 
                   onChange={(e) => setComment(e.target.value)} 
-                  placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm này..." 
+                  placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm này (Tùy chọn)..." 
                   rows="4"
-                  required
                   style={{
                     padding: "12px",
                     borderRadius: "6px",

@@ -11,7 +11,9 @@ const Item = (props) => {
         </Link>
       </div>
       <div className="item-name-container">
-        <p>{props.name}</p>
+        <Link to={`/product/${props.id}`} style={{ textDecoration: 'none', color: 'inherit' }} onClick={() => window.scrollTo(0, 0)}>
+          <p>{props.name}</p>
+        </Link>
       </div>
       <div className="item-price-container">
         {props.new_price === props.old_price ? (

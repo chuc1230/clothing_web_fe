@@ -16,7 +16,7 @@ const ShopContextProvider = (props) => {
     try {
       const token = localStorage.getItem('auth-token');
       if (token) {
-        const orderResponse = await axios.get('http://localhost:4000/orderItems', {
+        const orderResponse = await axios.get(`${import.meta.env.VITE_API_URL}/orderItems`, {
           headers: {
             'auth-token': token,
           },
@@ -31,12 +31,12 @@ const ShopContextProvider = (props) => {
   };
 
   useEffect(() => {
-    fetch('http://localhost:4000/allproducts')
+    fetch(`${import.meta.env.VITE_API_URL}/allproducts`)
       .then((response) => response.json())
       .then((data) => setAll_Product(data));
 
     if (localStorage.getItem('auth-token')) {
-      fetch('http://localhost:4000/getcart', {
+      fetch(`${import.meta.env.VITE_API_URL}/getcart`, {
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -75,7 +75,7 @@ const ShopContextProvider = (props) => {
     const token = localStorage.getItem('auth-token');
     
     if (token) {
-        fetch('http://localhost:4000/addtocart', {
+        fetch(`${import.meta.env.VITE_API_URL}/addtocart`, {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -112,7 +112,7 @@ const ShopContextProvider = (props) => {
       return updated;
     });
     if (localStorage.getItem('auth-token')) {
-      fetch('http://localhost:4000/removefromcart', {
+      fetch(`${import.meta.env.VITE_API_URL}/removefromcart`, {
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -139,7 +139,7 @@ const ShopContextProvider = (props) => {
       return updated;
     });
     if (localStorage.getItem('auth-token')) {
-      fetch('http://localhost:4000/deletefromcart', {
+      fetch(`${import.meta.env.VITE_API_URL}/deletefromcart`, {
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -183,7 +183,7 @@ const ShopContextProvider = (props) => {
     setCartItems(getDefaultCart());
     setCheckedItems({});
     if (localStorage.getItem('auth-token')) {
-      fetch('http://localhost:4000/clearcart', {
+      fetch(`${import.meta.env.VITE_API_URL}/clearcart`, {
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -210,6 +210,14 @@ const ShopContextProvider = (props) => {
     });
     setCheckedItems({});
   };
+  
+  const updateProductReviews = (productId, reviews) => {
+    setAll_Product((prevProducts) =>
+      prevProducts.map((p) =>
+        p.id === productId ? { ...p, reviews: reviews } : p
+      )
+    );
+  };
 
   const contextValue = {
     all_product,
@@ -225,6 +233,7 @@ const ShopContextProvider = (props) => {
     getTotalCartItems,
     clearCart,
     clearCheckedCart,
+    updateProductReviews,
   };
 
   return (

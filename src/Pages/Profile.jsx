@@ -31,7 +31,7 @@ const Profile = () => {
           return;
         }
 
-        const response = await axios.get("http://localhost:4000/api/users/profile", {
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/profile`, {
           headers: {
             "auth-token": token,
           },
@@ -85,7 +85,7 @@ const Profile = () => {
     try {
       const token = localStorage.getItem("auth-token");
       const response = await axios.put(
-        "http://localhost:4000/api/users/profile",
+        `${import.meta.env.VITE_API_URL}/api/users/profile`,
         {
           name: profile.name,
           phoneNumber: profile.phoneNumber,

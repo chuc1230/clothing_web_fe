@@ -1,17 +1,32 @@
 import React, { useContext, useState } from "react";
-import "./CSS/ShopCategory.css";
+import { useSearchParams } from "react-router-dom";
 import { ShopContext } from "../Context/ShopContext";
-import dropdown_icon from "../Components/Assets/dropdown_icon.png";
 import Item from "../Components/Item/Item";
+import "./CSS/ShopCategory.css"; // Reuse ShopCategory layout styles
 
-const ShopCategory = (props) => {
+const Search = () => {
   const { all_product } = useContext(ShopContext);
+  const [searchParams] = useSearchParams();
+  const query = searchParams.get("q") || "";
   const [visibleCount, setVisibleCount] = useState(12);
   const [sortType, setSortType] = useState("date");
 
-  const categoryProducts = all_product.filter(
-    (item) => props.category === item.category
-  );
+  // Filter products by search query matching name, category, subcategory, or detail_category
+  const matchedProducts = all_product.filter((item) => {
+    const q = query.toLowerCase().trim();
+    if (!q) return false;
+    return (
+      item.name.toLowerCase().includes(q) ||
+      (item.category && item.category.toLowerCase().includes(q)) ||
+      (item.subcategory && item.subcategory.toLowerCase().includes(q)) ||
+      (item.detail_category && item.detail_category.toLowerCase().includes(q)) ||
+      (item.description && item.description.toLowerCase().includes(q))
+    );
+  });
+
+  const loadMore = () => {
+    setVisibleCount((prev) => prev + 12);
+  };
 
   const getSortedProducts = (products) => {
     const sorted = [...products];
@@ -29,15 +44,15 @@ const ShopCategory = (props) => {
     return sorted;
   };
 
-  const sortedProducts = getSortedProducts(categoryProducts);
-
-  const loadMore = () => {
-    setVisibleCount((prev) => prev + 12);
-  };
+  const sortedProducts = getSortedProducts(matchedProducts);
 
   return (
     <div className="shop-category">
-      <img className="shopcategory-banner" src={props.banner} alt="" />
+      <div style={{ padding: "40px 170px 20px 170px" }}>
+        <h2 style={{ fontSize: "24px", fontWeight: "600", color: "#333" }}>
+          Kết quả tìm kiếm cho: <span style={{ color: "#ff4141" }}>"{query}"</span>
+        </h2>
+      </div>
       <div className="shopcategory-indexSort">
         <p>
           <span>Hiển thị 1-{Math.min(visibleCount, sortedProducts.length)}</span> trong số {sortedProducts.length} sản phẩm
@@ -65,18 +80,26 @@ const ShopCategory = (props) => {
           </select>
         </div>
       </div>
-      <div className="shopcategory-products">
-        {sortedProducts.slice(0, visibleCount).map((item, i) => (
-          <Item
-            key={i}
-            id={item.id}
-            name={item.name}
-            image={item.image}
-            new_price={item.new_price}
-            old_price={item.old_price}
-          />
-        ))}
-      </div>
+      
+      {sortedProducts.length === 0 ? (
+        <div style={{ padding: "80px 0", textAlign: "center", fontSize: "18px", color: "#555", width: "100%" }}>
+          Không tìm thấy sản phẩm nào phù hợp với từ khóa tìm kiếm.
+        </div>
+      ) : (
+        <div className="shopcategory-products">
+          {sortedProducts.slice(0, visibleCount).map((item, i) => (
+            <Item
+              key={i}
+              id={item.id}
+              name={item.name}
+              image={item.image}
+              new_price={item.new_price}
+              old_price={item.old_price}
+            />
+          ))}
+        </div>
+      )}
+
       {sortedProducts.length > visibleCount && (
         <div className="shopcategory-loadmore" onClick={loadMore} style={{ cursor: "pointer" }}>
           xem thêm
@@ -86,4 +109,4 @@ const ShopCategory = (props) => {
   );
 };
 
-export default ShopCategory;
+export default Search;

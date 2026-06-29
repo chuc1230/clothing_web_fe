@@ -53,7 +53,7 @@ const Checkout = () => {
 
     const fetchProfile = async () => {
       try {
-        const response = await axios.get("http://localhost:4000/api/users/profile", {
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/profile`, {
           headers: {
             "auth-token": token,
           },
@@ -135,7 +135,7 @@ const Checkout = () => {
     };
 
     try {
-      const response = await axios.post("http://localhost:4000/addOrder", requestData, {
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/addOrder`, requestData, {
         headers: {
           "auth-token": token,
         },

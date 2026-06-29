@@ -13,6 +13,7 @@ import kid_banner from './Components/Assets/banner_kids.png'
 import OrderHistory from "./Pages/OrderHistory";
 import Profile from "./Pages/Profile";
 import Checkout from "./Pages/Checkout";
+import Search from "./Pages/Search";
 
 
 function App() {
@@ -25,6 +26,7 @@ function App() {
           <Route path="/mens" element={<ShopCategory banner={men_banner} category="men" />} />
           <Route path="/womens" element={<ShopCategory banner={women_banner} category="women" />} />
           <Route path="/kids" element={<ShopCategory banner={kid_banner} category="kid" />} />
+          <Route path="/search" element={<Search />} />
           <Route path="/orderhistory" element={<OrderHistory />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/product" element={<Product />}>
