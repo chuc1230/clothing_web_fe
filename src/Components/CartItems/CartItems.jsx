@@ -79,10 +79,10 @@ const CartItems = () => {
         </div>
         <p>Sản phẩm</p>
         <p>Tên sản phẩm</p>
-        <p>Giá</p>
-        <p>Số lượng</p>
-        <p>Tổng cộng</p>
-        <p>Xóa bỏ</p>
+        <p style={{ textAlign: 'center' }}>Giá</p>
+        <p style={{ textAlign: 'center' }}>Số lượng</p>
+        <p style={{ textAlign: 'center' }}>Tổng cộng</p>
+        <p style={{ textAlign: 'center' }}>Xóa bỏ</p>
       </div>
       <hr />
       {cartProducts.length === 0 ? (
@@ -97,16 +97,18 @@ const CartItems = () => {
               <div className="cartitems-format cartitems-format-main">
                 <input
                   type="checkbox"
+                  className="cartitems-item-checkbox"
                   checked={isChecked}
                   onChange={() => handleToggleCheck(e.id)}
                   style={{ width: '18px', height: '18px', cursor: 'pointer', margin: 'auto' }}
                 />
-                <Link to={`/product/${e.id}`}>
+                <Link to={`/product/${e.id}`} className="cartitems-item-img-link">
                   <img src={e.image} alt="" className="carticon-product-icon" onClick={() => window.scrollTo(0, 0)} />
                 </Link>
-                <Link to={`/product/${e.id}`} style={{ textDecoration: 'none', color: '#454545' }} onClick={() => window.scrollTo(0, 0)}>
+                <Link to={`/product/${e.id}`} className="cartitems-item-title-link" style={{ textDecoration: 'none', color: '#454545' }} onClick={() => window.scrollTo(0, 0)}>
                   <p className="cartitems-product-title">{e.name}</p>
                 </Link>
+                <p className="cartitems-item-price" style={{ textAlign: 'center' }}>{e.new_price}đ</p>
                 <div className="cartitems-quantity-selector" style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
                   <button 
                     onClick={() => removeFromCart(e.id)} 
@@ -122,13 +124,13 @@ const CartItems = () => {
                     +
                   </button>
                 </div>
-                <p>{e.new_price * cartItems[e.id]}đ</p>
+                <p className="cartitems-item-total" style={{ textAlign: 'center' }}>{e.new_price * cartItems[e.id]}đ</p>
                 <img
                   className="cartitems-remove-icon"
                   src={remove_icon}
                   onClick={() => removeFromCart(e.id)}
                   alt=""
-                  style={{ cursor: 'pointer' }}
+                  style={{ cursor: 'pointer', margin: 'auto' }}
                 />
               </div>
               <hr />

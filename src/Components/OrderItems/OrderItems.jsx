@@ -4,6 +4,8 @@ import { Pagination, Modal } from "antd";
 import "./OrderItems.css";
 import { FiEye } from "react-icons/fi";
 
+const API_URL = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
+
 const OrderItems = () => {
   const [current, setCurrent] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -59,6 +61,10 @@ const OrderItems = () => {
       bg = "#f6ffed";
       color = "#389e0d";
       border = "1px solid #b7eb8f";
+    } else if (s === "Đã hủy") {
+      bg = "#fff1f0";
+      color = "#cf1322";
+      border = "1px solid #ffa39e";
     }
     
     return (
@@ -75,6 +81,38 @@ const OrderItems = () => {
         {s}
       </span>
     );
+  };
+
+  const handleCancelOrder = async (orderDate) => {
+    if (!window.confirm("Bạn có chắc chắn muốn hủy đơn hàng này không?")) {
+      return;
+    }
+    try {
+      const token = localStorage.getItem("auth-token");
+      if (!token) return;
+
+      const response = await fetch(`${API_URL}/cancelOrder`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "auth-token": token,
+        },
+        body: JSON.stringify({ orderDate }),
+      });
+      const data = await response.json();
+      if (data.success) {
+        alert("Hủy đơn hàng thành công!");
+        setIsModalOpen(false);
+        if (fetchOrderItems) {
+          await fetchOrderItems();
+        }
+      } else {
+        alert("Hủy đơn hàng thất bại: " + data.message);
+      }
+    } catch (error) {
+      console.error("Lỗi khi hủy đơn hàng:", error);
+      alert("Đã xảy ra lỗi khi hủy đơn hàng!");
+    }
   };
 
   return (
@@ -142,6 +180,27 @@ const OrderItems = () => {
                 ? `${selectedOrder.address.street || ""}, ${selectedOrder.address.city || ""}, ${selectedOrder.address.state || ""}` 
                 : "Không có"}
             </p>
+            {(!selectedOrder.status || selectedOrder.status === "Chờ shop đóng hàng") && (
+              <button 
+                onClick={() => handleCancelOrder(selectedOrder.orderDate)}
+                style={{
+                  background: '#ff4d4f',
+                  color: '#fff',
+                  border: 'none',
+                  padding: '8px 16px',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontWeight: '600',
+                  marginTop: '10px',
+                  width: 'fit-content',
+                  transition: 'background 0.2s'
+                }}
+                onMouseOver={(e) => e.target.style.background = '#d9363e'}
+                onMouseOut={(e) => e.target.style.background = '#ff4d4f'}
+              >
+                Hủy đơn hàng
+              </button>
+            )}
             <hr style={{ border: '0', height: '1px', background: '#eee' }} />
             <h3 style={{ fontSize: "16px", fontWeight: "600" }}>Sản phẩm trong đơn hàng:</h3>
             <ul>

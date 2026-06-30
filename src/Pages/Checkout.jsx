@@ -179,7 +179,7 @@ const Checkout = () => {
           <div className="checkout-section">
             <h2>1. Thông tin liên hệ & Giao hàng</h2>
             <div className="checkout-form-group">
-              <label>Họ và tên</label>
+              <label>Họ và tên <span style={{ color: 'red' }}>*</span></label>
               <input
                 type="text"
                 name="name"
@@ -190,7 +190,7 @@ const Checkout = () => {
               />
             </div>
             <div className="checkout-form-group">
-              <label>Số điện thoại</label>
+              <label>Số điện thoại <span style={{ color: 'red' }}>*</span></label>
               <input
                 type="text"
                 name="phoneNumber"
@@ -201,7 +201,7 @@ const Checkout = () => {
               />
             </div>
             <div className="checkout-form-group">
-              <label>Số nhà, Tên đường (Thôn/Xóm)</label>
+              <label>Số nhà, Tên đường (Thôn/Xóm) <span style={{ color: 'red' }}>*</span></label>
               <input
                 type="text"
                 name="address.street"
@@ -213,7 +213,7 @@ const Checkout = () => {
             </div>
             <div className="checkout-form-row">
               <div className="checkout-form-group">
-                <label>Quận / Huyện</label>
+                <label>Quận / Huyện <span style={{ color: 'red' }}>*</span></label>
                 <input
                   type="text"
                   name="address.city"
@@ -224,7 +224,7 @@ const Checkout = () => {
                 />
               </div>
               <div className="checkout-form-group">
-                <label>Tỉnh / Thành phố</label>
+                <label>Tỉnh / Thành phố <span style={{ color: 'red' }}>*</span></label>
                 <input
                   type="text"
                   name="address.state"
@@ -235,6 +235,9 @@ const Checkout = () => {
                 />
               </div>
             </div>
+            <p style={{ color: '#ff4d4f', fontSize: '13px', fontStyle: 'italic', marginTop: '12px', margin: '0' }}>
+              (*): Bắt buộc điền thông tin
+            </p>
           </div>
 
           <div className="checkout-section">
