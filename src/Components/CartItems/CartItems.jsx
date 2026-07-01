@@ -8,6 +8,7 @@ const CartItems = () => {
   const { 
     all_product, 
     cartItems, 
+    addToCart,
     removeFromCart, 
     deleteFromCart, 
     checkedItems, 
@@ -128,7 +129,7 @@ const CartItems = () => {
                 <img
                   className="cartitems-remove-icon"
                   src={remove_icon}
-                  onClick={() => removeFromCart(e.id)}
+                  onClick={() => deleteFromCart(e.id)}
                   alt=""
                   style={{ cursor: 'pointer', margin: 'auto' }}
                 />

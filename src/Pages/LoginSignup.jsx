@@ -76,6 +76,18 @@ const LoginSignup = () => {
         alert("Vui lòng điền đầy đủ thông tin đăng ký!");
         return;
       }
+      
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email.trim())) {
+        alert("Định dạng Email không hợp lệ!");
+        return;
+      }
+
+      if (formData.password.length < 6) {
+        alert("Mật khẩu phải dài ít nhất 6 ký tự!");
+        return;
+      }
+
       if (!isChecked) {
         alert("Vui lòng đồng ý với các điều khoản sử dụng!");
         return;
