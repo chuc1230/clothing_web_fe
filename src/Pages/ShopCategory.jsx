@@ -33,7 +33,7 @@ const EmptyState = ({ onClear }) => {
 
 const ShopCategory = (props) => {
   const { all_product } = useContext(ShopContext);
-  const [visibleCount, setVisibleCount] = useState(12);
+  const [visibleCount, setVisibleCount] = useState(10);
   const [sortType, setSortType] = useState("date");
 
   // Filtering states
@@ -115,7 +115,7 @@ const ShopCategory = (props) => {
   const sortedProducts = getSortedProducts(filteredProducts);
 
   const loadMore = () => {
-    setVisibleCount((prev) => prev + 12);
+    setVisibleCount((prev) => prev + 10);
   };
 
   const isFiltersActive = 

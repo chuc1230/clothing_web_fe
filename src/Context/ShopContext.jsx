@@ -62,17 +62,15 @@ const ShopContextProvider = (props) => {
     }
   }, []);
 
-  const addToCart = (itemId, showAlert = false) => {
+  const addToCart = (itemId, showAlert = false, size = "", color = "") => {
+    const cartKey = (size || color) ? `${itemId}_${size}_${color}` : `${itemId}`;
+
     if (showAlert) {
-      const isAlreadyInCart = cartItems[itemId] && cartItems[itemId] > 0;
       alert("Đã thêm vào giỏ hàng!");
-      if (isAlreadyInCart) {
-        return;
-      }
     }
 
-    setCartItems((prev) => ({ ...prev, [itemId]: (prev[itemId] || 0) + 1 }));
-    setCheckedItems((prev) => ({ ...prev, [itemId]: true })); // Auto check
+    setCartItems((prev) => ({ ...prev, [cartKey]: (prev[cartKey] || 0) + 1 }));
+    setCheckedItems((prev) => ({ ...prev, [cartKey]: true })); // Auto check
 
     const token = localStorage.getItem('auth-token');
     
@@ -84,7 +82,7 @@ const ShopContextProvider = (props) => {
                 'auth-token': token,
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ "itemId": itemId })
+            body: JSON.stringify({ "itemId": cartKey })
         })
         .then((response) => {
             if (!response.ok) {
@@ -103,13 +101,13 @@ const ShopContextProvider = (props) => {
     }
   };
 
-  const removeFromCart = (itemId) => {
+  const removeFromCart = (cartKey) => {
     setCartItems((prev) => {
       const updated = { ...prev };
-      if (updated[itemId] > 1) {
-        updated[itemId] -= 1;
+      if (updated[cartKey] > 1) {
+        updated[cartKey] -= 1;
       } else {
-        delete updated[itemId];
+        delete updated[cartKey];
       }
       return updated;
     });
@@ -121,7 +119,7 @@ const ShopContextProvider = (props) => {
           'auth-token': `${localStorage.getItem('auth-token')}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ "itemId": itemId })
+        body: JSON.stringify({ "itemId": cartKey })
       })
         .then((response) => response.json())
         .then((data) => console.log(data))
@@ -129,15 +127,15 @@ const ShopContextProvider = (props) => {
     }
   };
 
-  const deleteFromCart = (itemId) => {
+  const deleteFromCart = (cartKey) => {
     setCartItems((prev) => {
       const updated = { ...prev };
-      delete updated[itemId];
+      delete updated[cartKey];
       return updated;
     });
     setCheckedItems((prev) => {
       const updated = { ...prev };
-      delete updated[itemId];
+      delete updated[cartKey];
       return updated;
     });
     if (localStorage.getItem('auth-token')) {
@@ -148,7 +146,7 @@ const ShopContextProvider = (props) => {
           'auth-token': `${localStorage.getItem('auth-token')}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ "itemId": itemId })
+        body: JSON.stringify({ "itemId": cartKey })
       })
         .then((response) => response.json())
         .then((data) => console.log("Deleted:", data))
@@ -158,13 +156,24 @@ const ShopContextProvider = (props) => {
 
   const getTotalCartAmount = () => {
     let totalAmount = 0;
-    for (const item in cartItems) {
-      if (cartItems[item] > 0) {
+    for (const key in cartItems) {
+      if (cartItems[key] > 0) {
+        const parts = key.split('_');
+        const itemId = Number(parts[0]);
+        const sizeName = parts[1] || "";
+        
         let itemInfo = all_product.find(
-          (product) => product.id === Number(item)
+          (product) => product.id === itemId
         );
         if (itemInfo) {
-          totalAmount += itemInfo.new_price * cartItems[item];
+          let itemPrice = itemInfo.new_price;
+          if (sizeName && itemInfo.sizes) {
+            const matchedSize = itemInfo.sizes.find(s => s.size === sizeName);
+            if (matchedSize) {
+              itemPrice = matchedSize.new_price;
+            }
+          }
+          totalAmount += itemPrice * cartItems[key];
         }
       }
     }

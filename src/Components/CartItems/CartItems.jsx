@@ -17,9 +17,25 @@ const CartItems = () => {
 
   const navigate = useNavigate();
 
-  // Find active cart items
-  const cartProducts = all_product.filter((e) => cartItems[e.id] > 0);
-  const cartProductIds = cartProducts.map((e) => e.id);
+  // Find active cart items and parse composite keys
+  const cartItemKeys = Object.keys(cartItems).filter(key => cartItems[key] > 0);
+  const cartProducts = cartItemKeys.map(key => {
+    const parts = key.split('_');
+    const productId = Number(parts[0]);
+    const size = parts[1] || "";
+    const color = parts[2] || "";
+    const product = all_product.find(p => p.id === productId);
+    return {
+      key, // unique identifier
+      productId,
+      size,
+      color,
+      quantity: cartItems[key],
+      product
+    };
+  }).filter(item => item.product !== undefined);
+
+  const cartProductIds = cartProducts.map((e) => e.key);
   
   // Calculate checked items count
   const checkedProductIds = cartProductIds.filter((id) => checkedItems[id] !== false);
@@ -58,9 +74,16 @@ const CartItems = () => {
   // Calculate checked total amount
   const getCheckedTotalAmount = () => {
     let total = 0;
-    cartProducts.forEach((product) => {
-      if (checkedItems[product.id] !== false) {
-        total += product.new_price * cartItems[product.id];
+    cartProducts.forEach((item) => {
+      if (checkedItems[item.key] !== false) {
+        let itemPrice = item.product.new_price;
+        if (item.size && item.product.sizes) {
+          const matchedSize = item.product.sizes.find(s => s.size === item.size);
+          if (matchedSize) {
+            itemPrice = matchedSize.new_price;
+          }
+        }
+        total += itemPrice * item.quantity;
       }
     });
     return total;
@@ -91,45 +114,71 @@ const CartItems = () => {
           Giỏ hàng của bạn đang trống. <Link to="/" style={{ color: "#ff4141", textDecoration: "none", fontWeight: "bold" }}>Mua sắm ngay!</Link>
         </div>
       ) : (
-        cartProducts.map((e) => {
-          const isChecked = checkedItems[e.id] !== false;
+        cartProducts.map((item) => {
+          const isChecked = checkedItems[item.key] !== false;
+          let itemPrice = item.product.new_price;
+          if (item.size && item.product.sizes) {
+            const matchedSize = item.product.sizes.find(s => s.size === item.size);
+            if (matchedSize) {
+              itemPrice = matchedSize.new_price;
+            }
+          }
           return (
-            <div key={e.id}>
+            <div key={item.key}>
               <div className="cartitems-format cartitems-format-main">
                 <input
                   type="checkbox"
                   className="cartitems-item-checkbox"
                   checked={isChecked}
-                  onChange={() => handleToggleCheck(e.id)}
+                  onChange={() => handleToggleCheck(item.key)}
                   style={{ width: '18px', height: '18px', cursor: 'pointer', margin: 'auto' }}
                 />
-                <Link to={`/product/${e.id}`} className="cartitems-item-img-link">
-                  <img src={e.image} alt="" className="carticon-product-icon" onClick={() => window.scrollTo(0, 0)} />
+                <Link to={`/product/${item.productId}`} className="cartitems-item-img-link">
+                  <img src={item.product.image} alt="" className="carticon-product-icon" onClick={() => window.scrollTo(0, 0)} />
                 </Link>
-                <Link to={`/product/${e.id}`} className="cartitems-item-title-link" style={{ textDecoration: 'none', color: '#454545' }} onClick={() => window.scrollTo(0, 0)}>
-                  <p className="cartitems-product-title">{e.name}</p>
+                <Link to={`/product/${item.productId}`} className="cartitems-item-title-link" style={{ textDecoration: 'none', color: '#454545' }} onClick={() => window.scrollTo(0, 0)}>
+                  <p className="cartitems-product-title">
+                    {item.product.name}
+                    {(item.size || item.color) && (
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#777', marginTop: '4px', flexWrap: 'wrap' }}>
+                        {item.size && <span>Size: {item.size}</span>}
+                        {item.size && item.color && <span>|</span>}
+                        {item.color && (
+                          <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            Màu: {item.color}
+                            {(() => {
+                              const matchedColor = item.product.colors && item.product.colors.find(c => c.name === item.color);
+                              return matchedColor && matchedColor.image ? (
+                                <img src={matchedColor.image} alt="" style={{ width: '16px', height: '16px', borderRadius: '50%', objectFit: 'cover', border: '1px solid #ccc' }} />
+                              ) : null;
+                            })()}
+                          </span>
+                        )}
+                      </span>
+                    )}
+                  </p>
                 </Link>
-                <p className="cartitems-item-price" style={{ textAlign: 'center' }}>{e.new_price}đ</p>
+                <p className="cartitems-item-price" style={{ textAlign: 'center' }}>{itemPrice}đ</p>
                 <div className="cartitems-quantity-selector" style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
                   <button 
-                    onClick={() => removeFromCart(e.id)} 
+                    onClick={() => removeFromCart(item.key)} 
                     style={{ width: '28px', height: '28px', cursor: 'pointer', border: '1px solid #ccc', background: '#fff', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '16px' }}
                   >
                     -
                   </button>
-                  <span style={{ fontSize: '16px', fontWeight: '600', minWidth: '20px', textAlign: 'center' }}>{cartItems[e.id]}</span>
+                  <span style={{ fontSize: '16px', fontWeight: '600', minWidth: '20px', textAlign: 'center' }}>{item.quantity}</span>
                   <button 
-                    onClick={() => addToCart(e.id, false)} 
+                    onClick={() => addToCart(item.productId, false, item.size, item.color)} 
                     style={{ width: '28px', height: '28px', cursor: 'pointer', border: '1px solid #ccc', background: '#fff', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '16px' }}
                   >
                     +
                   </button>
                 </div>
-                <p className="cartitems-item-total" style={{ textAlign: 'center' }}>{e.new_price * cartItems[e.id]}đ</p>
+                <p className="cartitems-item-total" style={{ textAlign: 'center' }}>{itemPrice * item.quantity}đ</p>
                 <img
                   className="cartitems-remove-icon"
                   src={remove_icon}
-                  onClick={() => deleteFromCart(e.id)}
+                  onClick={() => deleteFromCart(item.key)}
                   alt=""
                   style={{ cursor: 'pointer', margin: 'auto' }}
                 />

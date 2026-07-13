@@ -36,7 +36,7 @@ const Search = () => {
   const { all_product } = useContext(ShopContext);
   const [searchParams] = useSearchParams();
   const query = searchParams.get("q") || "";
-  const [visibleCount, setVisibleCount] = useState(12);
+  const [visibleCount, setVisibleCount] = useState(10);
   const [sortType, setSortType] = useState("date");
 
   // Filtering states
@@ -53,7 +53,7 @@ const Search = () => {
     setMinPrice("");
     setMaxPrice("");
     setIsMobileFiltersOpen(false);
-    setVisibleCount(12);
+    setVisibleCount(10);
   }, [query]);
 
   const toggleCategory = (cat) => {
@@ -136,7 +136,7 @@ const Search = () => {
   const sortedProducts = getSortedProducts(filteredProducts);
 
   const loadMore = () => {
-    setVisibleCount((prev) => prev + 12);
+    setVisibleCount((prev) => prev + 10);
   };
 
   const isFiltersActive = 

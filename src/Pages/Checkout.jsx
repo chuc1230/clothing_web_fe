@@ -3,6 +3,7 @@ import { ShopContext } from "../Context/ShopContext";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./CSS/Checkout.css";
+import qrCodeImage from "../Components/Assets/QR_MB.jpg";
 
 const API_URL = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
 
@@ -24,17 +25,37 @@ const Checkout = () => {
   });
 
   const [paymentMethod, setPaymentMethod] = useState("cash"); // cash, transfer
-  const [transferType, setTransferType] = useState("later"); // instant, later
+  const [showQRModal, setShowQRModal] = useState(false);
 
-  // Get selected products
-  const selectedProducts = all_product.filter(
-    (product) => cartItems[product.id] > 0 && checkedItems[product.id] !== false
-  );
+  // Get selected products and parse composite keys
+  const cartItemKeys = Object.keys(cartItems).filter(key => cartItems[key] > 0 && checkedItems[key] !== false);
+  const selectedProducts = cartItemKeys.map(key => {
+    const parts = key.split('_');
+    const productId = Number(parts[0]);
+    const size = parts[1] || "";
+    const color = parts[2] || "";
+    const product = all_product.find(p => p.id === productId);
+    return {
+      key, // unique key
+      productId,
+      size,
+      color,
+      quantity: cartItems[key],
+      product
+    };
+  }).filter(item => item.product !== undefined);
 
   const getCheckedTotalAmount = () => {
     let total = 0;
-    selectedProducts.forEach((product) => {
-      total += product.new_price * cartItems[product.id];
+    selectedProducts.forEach((item) => {
+      let itemPrice = item.product.new_price;
+      if (item.size && item.product.sizes) {
+        const matchedSize = item.product.sizes.find(s => s.size === item.size);
+        if (matchedSize) {
+          itemPrice = matchedSize.new_price;
+        }
+      }
+      total += itemPrice * item.quantity;
     });
     return total;
   };
@@ -112,21 +133,16 @@ const Checkout = () => {
       return;
     }
 
-    if (paymentMethod === "transfer" && transferType === "instant") {
-      alert("Chức năng chuyển khoản trực tiếp đang phát triển!");
-      return;
-    }
-
     setPlacingOrder(true);
 
     const orderedItems = {};
-    selectedProducts.forEach((p) => {
-      orderedItems[p.id] = cartItems[p.id];
+    selectedProducts.forEach((item) => {
+      orderedItems[item.key] = item.quantity;
     });
 
     const finalPaymentMethod = paymentMethod === "cash" 
       ? "Tiền mặt" 
-      : "Chuyển khoản (Chờ nhận hàng mới chuyển khoản)";
+      : "Chuyển khoản";
 
     const requestData = {
       cart: orderedItems,
@@ -144,12 +160,15 @@ const Checkout = () => {
       });
 
       if (response.data.success) {
-        alert("Đặt hàng thành công! Đơn hàng của bạn đang được xử lý.");
-        // clearCheckedCart(); // Keep items in cart on purchase as per new request
         if (fetchOrderItems) {
           await fetchOrderItems();
         }
-        navigate("/orderhistory");
+        if (paymentMethod === "transfer") {
+          setShowQRModal(true);
+        } else {
+          alert("Đặt hàng thành công! Đơn hàng của bạn đang được xử lý.");
+          navigate("/orderhistory");
+        }
       } else {
         alert("Đặt hàng thất bại: " + response.data.message);
       }
@@ -169,7 +188,7 @@ const Checkout = () => {
     );
   }
 
-  const isInstantTransfer = paymentMethod === "transfer" && transferType === "instant";
+  // const isInstantTransfer = false;
 
   return (
     <div className="checkout-container">
@@ -267,50 +286,16 @@ const Checkout = () => {
                 />
                 <div className="payment-option-info">
                   <span className="payment-title">Chuyển khoản ngân hàng</span>
-                  <span className="payment-desc">Chuyển khoản qua số tài khoản ngân hàng.</span>
+                  <span className="payment-desc">Chuyển khoản qua quét mã QR ngân hàng.</span>
                 </div>
               </label>
             </div>
-
-            {paymentMethod === "transfer" && (
-              <div className="transfer-details-box">
-                <h3>Chọn hình thức chuyển khoản:</h3>
-                <div className="transfer-suboptions">
-                  <label className="suboption-label">
-                    <input
-                      type="radio"
-                      name="transferType"
-                      value="instant"
-                      checked={transferType === "instant"}
-                      onChange={() => setTransferType("instant")}
-                    />
-                    <span>Chuyển khoản ngay (Direct Bank Transfer)</span>
-                  </label>
-                  <label className="suboption-label">
-                    <input
-                      type="radio"
-                      name="transferType"
-                      value="later"
-                      checked={transferType === "later"}
-                      onChange={() => setTransferType("later")}
-                    />
-                    <span>Chờ nhận hàng rồi mới chuyển khoản</span>
-                  </label>
-                </div>
-
-                {transferType === "instant" && (
-                  <div className="instant-transfer-warning">
-                    <p>⚠️ <strong>Đang phát triển:</strong> Chức năng chuyển khoản trực tiếp (thanh toán online qua cổng ngân hàng/QR) hiện đang được phát triển. Vui lòng chọn "Chờ nhận hàng rồi mới chuyển khoản" hoặc "Tiền mặt" để tiếp tục đặt hàng.</p>
-                  </div>
-                )}
-              </div>
-            )}
           </div>
 
           <button 
             type="submit" 
-            disabled={placingOrder || isInstantTransfer} 
-            className={`checkout-submit-btn ${isInstantTransfer ? "disabled" : ""}`}
+            disabled={placingOrder} 
+            className="checkout-submit-btn"
           >
             {placingOrder ? "ĐANG XỬ LÝ..." : "XÁC NHẬN ĐẶT HÀNG"}
           </button>
@@ -320,33 +305,59 @@ const Checkout = () => {
           <h2>Tóm tắt đơn hàng ({selectedProducts.length})</h2>
           <hr />
           <div className="checkout-items-list">
-            {selectedProducts.map((p) => (
-              <div key={p.id} className="checkout-item-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '15px' }}>
-                <img src={p.image} alt="" className="checkout-item-img" />
-                <div className="checkout-item-detail" style={{ flex: 1 }}>
-                  <span className="item-name">{p.name}</span>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
-                    <button 
-                      type="button" 
-                      onClick={() => removeFromCart(p.id)} 
-                      style={{ width: '22px', height: '22px', border: '1px solid #ccc', background: '#fff', borderRadius: '3px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontWeight: 'bold' }}
-                    >
-                      -
-                    </button>
-                    <span style={{ fontSize: '14px', fontWeight: '600' }}>{cartItems[p.id]}</span>
-                    <button 
-                      type="button" 
-                      onClick={() => addToCart(p.id, false)} 
-                      style={{ width: '22px', height: '22px', border: '1px solid #ccc', background: '#fff', borderRadius: '3px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontWeight: 'bold' }}
-                    >
-                      +
-                    </button>
-                    <span style={{ fontSize: '13px', color: '#666', marginLeft: '5px' }}>x {p.new_price}đ</span>
+            {selectedProducts.map((item) => {
+              let itemPrice = item.product.new_price;
+              if (item.size && item.product.sizes) {
+                const matchedSize = item.product.sizes.find(s => s.size === item.size);
+                if (matchedSize) {
+                  itemPrice = matchedSize.new_price;
+                }
+              }
+              return (
+                <div key={item.key} className="checkout-item-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '15px' }}>
+                  <img src={item.product.image} alt="" className="checkout-item-img" />
+                  <div className="checkout-item-detail" style={{ flex: 1 }}>
+                    <span className="item-name">{item.product.name}</span>
+                    {(item.size || item.color) && (
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#777', marginTop: '2px', flexWrap: 'wrap' }}>
+                        {item.size && <span>Size: {item.size}</span>}
+                        {item.size && item.color && <span>|</span>}
+                        {item.color && (
+                          <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            Màu: {item.color}
+                            {(() => {
+                              const matchedColor = item.product.colors && item.product.colors.find(c => c.name === item.color);
+                              return matchedColor && matchedColor.image ? (
+                                <img src={matchedColor.image} alt="" style={{ width: '14px', height: '14px', borderRadius: '50%', objectFit: 'cover', border: '1px solid #ccc' }} />
+                              ) : null;
+                            })()}
+                          </span>
+                        )}
+                      </span>
+                    )}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
+                      <button 
+                        type="button" 
+                        onClick={() => removeFromCart(item.key)} 
+                        style={{ width: '22px', height: '22px', border: '1px solid #ccc', background: '#fff', borderRadius: '3px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontWeight: 'bold' }}
+                      >
+                        -
+                      </button>
+                      <span style={{ fontSize: '14px', fontWeight: '600' }}>{item.quantity}</span>
+                      <button 
+                        type="button" 
+                        onClick={() => addToCart(item.productId, false, item.size, item.color)} 
+                        style={{ width: '22px', height: '22px', border: '1px solid #ccc', background: '#fff', borderRadius: '3px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontWeight: 'bold' }}
+                      >
+                        +
+                      </button>
+                      <span style={{ fontSize: '13px', color: '#666', marginLeft: '5px' }}>x {itemPrice}đ</span>
+                    </div>
                   </div>
+                  <span className="item-subtotal">{itemPrice * item.quantity}đ</span>
                 </div>
-                <span className="item-subtotal">{p.new_price * cartItems[p.id]}đ</span>
-              </div>
-            ))}
+              );
+            })}
           </div>
           <hr />
           <div className="summary-totals">
@@ -366,6 +377,44 @@ const Checkout = () => {
           </div>
         </div>
       </div>
+      {showQRModal && (
+        <div className="checkout-qr-modal-overlay">
+          <div className="checkout-qr-modal-card">
+            <div className="checkout-qr-modal-header">
+              <h2>ĐẶT HÀNG THÀNH CÔNG!</h2>
+              <p>Vui lòng quét mã QR bên dưới để thực hiện chuyển khoản thanh toán</p>
+            </div>
+            <div className="checkout-qr-image-container">
+              <img src={qrCodeImage} alt="QR Code" className="checkout-qr-img" />
+            </div>
+            <div className="checkout-qr-details">
+              <div className="checkout-qr-details-row">
+                <span>Ngân hàng:</span>
+                <span>MB Bank</span>
+              </div>
+              <div className="checkout-qr-details-row">
+                <span>Tên chủ tài khoản:</span>
+                <span>SHOP CLOTHING</span>
+              </div>
+              <div className="checkout-qr-details-row">
+                <span>Số tài khoản:</span>
+                <span>20039999799999</span>
+              </div>
+              <div className="checkout-qr-details-row total-row">
+                <span>Số tiền cần thanh toán:</span>
+                <span>{getCheckedTotalAmount()}đ</span>
+              </div>
+            </div>
+            <button className="checkout-qr-btn" onClick={() => {
+              setShowQRModal(false);
+              alert("Đã xác nhận hình thức chuyển khoản. Đơn hàng của bạn đang được xử lý.");
+              navigate("/orderhistory");
+            }}>
+              Tôi đã chuyển khoản
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
