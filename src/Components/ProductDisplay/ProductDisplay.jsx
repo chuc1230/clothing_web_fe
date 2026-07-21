@@ -243,7 +243,6 @@ const ProductDisplay = (props) => {
         <button onClick={handleAddToCartClick}>Thêm vào giỏ hàng</button>
         <p className="productdisplay-right-category"><span>Danh mục : </span>{product.category === "women" ? "Nữ" : product.category === "men" ? "Nam" : "Trẻ em"} </p>
         <p className="productdisplay-right-category"><span>Kho: </span>{product.stock !== undefined ? product.stock : 0}</p>
-        <p className="productdisplay-right-category"><span>Từ khóa : </span>Hiện đại, Mới nhất </p>
       </div>
     </div>
   );

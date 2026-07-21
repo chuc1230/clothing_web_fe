@@ -44,7 +44,18 @@ const Search = () => {
   const [priceRange, setPriceRange] = useState("all");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
+  const [selectedSeason, setSelectedSeason] = useState("all");
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
+
+  // Helper to detect current season based on current date
+  const getCurrentSeason = () => {
+    const currentMonth = new Date().getMonth() + 1; // 1-12
+    if (currentMonth >= 2 && currentMonth <= 7) {
+      return "Xuân/Hè";
+    } else {
+      return "Thu/Đông";
+    }
+  };
 
   // Reset filters when the search query changes
   useEffect(() => {
@@ -52,6 +63,7 @@ const Search = () => {
     setPriceRange("all");
     setMinPrice("");
     setMaxPrice("");
+    setSelectedSeason("all");
     setIsMobileFiltersOpen(false);
     setVisibleCount(10);
   }, [query]);
@@ -78,6 +90,7 @@ const Search = () => {
     setPriceRange("all");
     setMinPrice("");
     setMaxPrice("");
+    setSelectedSeason("all");
   };
 
   // Filter products by search query matching name, category, subcategory, or detail_category
@@ -101,17 +114,22 @@ const Search = () => {
 
     // 2. Filter by price range
     if (priceRange === "under200") {
-      return item.new_price < 200000;
+      if (item.new_price >= 200000) return false;
     } else if (priceRange === "200to500") {
-      return item.new_price >= 200000 && item.new_price <= 500000;
+      if (item.new_price < 200000 || item.new_price > 500000) return false;
     } else if (priceRange === "500to1000") {
-      return item.new_price >= 500000 && item.new_price <= 1000000;
+      if (item.new_price < 500000 || item.new_price > 1000000) return false;
     } else if (priceRange === "over1000") {
-      return item.new_price > 1000000;
+      if (item.new_price <= 1000000) return false;
     } else if (priceRange === "custom") {
       const min = minPrice ? Number(minPrice) : 0;
       const max = maxPrice ? Number(maxPrice) : Infinity;
-      return item.new_price >= min && item.new_price <= max;
+      if (item.new_price < min || item.new_price > max) return false;
+    }
+
+    // 3. Filter by season
+    if (selectedSeason !== "all") {
+      if (item.season !== selectedSeason) return false;
     }
 
     return true;
@@ -119,16 +137,29 @@ const Search = () => {
 
   const getSortedProducts = (products) => {
     const sorted = [...products];
-    if (sortType === "date") {
-      sorted.sort((a, b) => b.id - a.id);
-    } else if (sortType === "name_asc") {
-      sorted.sort((a, b) => a.name.localeCompare(b.name, 'vi'));
-    } else if (sortType === "name_desc") {
-      sorted.sort((a, b) => b.name.localeCompare(a.name, 'vi'));
-    } else if (sortType === "price_asc") {
-      sorted.sort((a, b) => a.new_price - b.new_price);
-    } else if (sortType === "price_desc") {
-      sorted.sort((a, b) => b.new_price - a.new_price);
+    const isDefaultView = !isFiltersActive && selectedSeason === "all";
+
+    if (isDefaultView && sortType === "date") {
+      const currentSeason = getCurrentSeason();
+      sorted.sort((a, b) => {
+        const aMatch = a.season === currentSeason || a.season === "Quanh năm";
+        const bMatch = b.season === currentSeason || b.season === "Quanh năm";
+        if (aMatch && !bMatch) return -1;
+        if (!aMatch && bMatch) return 1;
+        return b.id - a.id;
+      });
+    } else {
+      if (sortType === "date") {
+        sorted.sort((a, b) => b.id - a.id);
+      } else if (sortType === "name_asc") {
+        sorted.sort((a, b) => a.name.localeCompare(b.name, 'vi'));
+      } else if (sortType === "name_desc") {
+        sorted.sort((a, b) => b.name.localeCompare(a.name, 'vi'));
+      } else if (sortType === "price_asc") {
+        sorted.sort((a, b) => a.new_price - b.new_price);
+      } else if (sortType === "price_desc") {
+        sorted.sort((a, b) => b.new_price - a.new_price);
+      }
     }
     return sorted;
   };
@@ -143,6 +174,7 @@ const Search = () => {
     priceRange !== "all" || 
     minPrice || 
     maxPrice || 
+    selectedSeason !== "all" ||
     selectedCategories.length !== 3;
 
   return (
@@ -260,6 +292,37 @@ const Search = () => {
                 }}
               >
                 Trên 1M
+              </button>
+            </div>
+          </div>
+
+          {/* Phân loại theo mùa: Pill Tags */}
+          <div className="filter-section">
+            <span className="filter-label">Mùa:</span>
+            <div className="pill-tags">
+              <button
+                className={`pill-tag-btn ${selectedSeason === "all" ? "active" : ""}`}
+                onClick={() => setSelectedSeason("all")}
+              >
+                Tất cả
+              </button>
+              <button
+                className={`pill-tag-btn ${selectedSeason === "Xuân/Hè" ? "active" : ""}`}
+                onClick={() => setSelectedSeason("Xuân/Hè")}
+              >
+                Xuân/Hè
+              </button>
+              <button
+                className={`pill-tag-btn ${selectedSeason === "Thu/Đông" ? "active" : ""}`}
+                onClick={() => setSelectedSeason("Thu/Đông")}
+              >
+                Thu/Đông
+              </button>
+              <button
+                className={`pill-tag-btn ${selectedSeason === "Quanh năm" ? "active" : ""}`}
+                onClick={() => setSelectedSeason("Quanh năm")}
+              >
+                Quanh năm
               </button>
             </div>
           </div>
